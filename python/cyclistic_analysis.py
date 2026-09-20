@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 from pathlib import Path
 
 raw_data_folder = Path("Raw_Data")
@@ -133,95 +134,168 @@ ride_share = (
 print("\nRide share by rider type (%):")
 print(ride_share)
 
+from matplotlib.ticker import FuncFormatter
+
 day_order = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday"
+    "Monday", "Tuesday", "Wednesday",
+    "Thursday", "Friday", "Saturday", "Sunday"
 ]
+
+# -----------------------------
+# CHART 1: RIDES BY DAY
+# -----------------------------
 
 rides_by_day = rides_by_day[day_order]
 
-rides_by_day.T.plot(
+ax = rides_by_day.T.plot(
     kind="bar",
-    figsize=(10, 6)
+    figsize=(11, 6),
+    width=0.75
 )
 
-plt.title("Cyclistic Rides by Day of Week")
-plt.xlabel("Day of Week")
+plt.title(
+    "Members Lead on Weekdays, Casual Riders on Weekends",
+    fontsize=15,
+    fontweight="bold",
+    pad=18
+)
+
+plt.xlabel("")
 plt.ylabel("Number of Rides")
-plt.xticks(rotation=45)
+plt.xticks(rotation=0)
+
+ax.yaxis.set_major_formatter(
+    FuncFormatter(lambda x, _: f"{x/1000:.0f}K")
+)
+
+ax.grid(axis="y", alpha=0.25, linestyle="--")
+ax.set_axisbelow(True)
+
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+
+plt.legend(title="Rider Type", frameon=False)
+
 plt.tight_layout()
-
-plt.savefig("charts/rides_by_day.png", dpi=300)
-
+plt.savefig("charts/rides_by_day.png", dpi=300, bbox_inches="tight")
 plt.close()
 
-rides_by_month.plot(
+
+# -----------------------------
+# CHART 2: MONTHLY TRENDS
+# -----------------------------
+
+rides_by_month.index = rides_by_month.index.strftime("%b")
+
+ax = rides_by_month.plot(
     kind="line",
     marker="o",
-    figsize=(10, 6)
+    linewidth=2.5,
+    figsize=(11, 6)
 )
 
-plt.title("Cyclistic Monthly Ride Trends")
-plt.xlabel("Month")
+plt.title(
+    "Cyclistic Ridership Shows Strong Seasonal Patterns",
+    fontsize=16,
+    fontweight="bold",
+    pad=18
+)
+
+plt.xlabel("")
 plt.ylabel("Number of Rides")
-plt.xticks(rotation=45)
+
+plt.xticks(rotation=0)
+
+ax.yaxis.set_major_formatter(
+    FuncFormatter(lambda x, _: f"{x/1000:.0f}K")
+)
+
+ax.grid(axis="y", alpha=0.25, linestyle="--")
+ax.set_axisbelow(True)
+
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+
+plt.legend(title="Rider Type", frameon=False)
+
 plt.tight_layout()
 
-plt.savefig("charts/monthly_ride_trends.png", dpi=300)
+plt.savefig(
+    "charts/monthly_ride_trends.png",
+    dpi=300,
+    bbox_inches="tight"
+)
 
 plt.close()
+
+
+# -----------------------------
+# CHART 3: AVERAGE RIDE LENGTH
+# -----------------------------
 
 avg_minutes = average_ride_length.dt.total_seconds() / 60
 
-avg_minutes.plot(
+ax = avg_minutes.plot(
     kind="bar",
-    figsize=(7, 5)
+    figsize=(8, 5),
+    width=0.55
 )
 
-plt.title("Average Ride Length by Rider Type")
-plt.xlabel("Rider Type")
+plt.title(
+    "Casual Riders Take Longer Trips on Average",
+    fontsize=16,
+    fontweight="bold",
+    pad=18
+)
+
+plt.xlabel("")
 plt.ylabel("Average Ride Length (Minutes)")
 plt.xticks(rotation=0)
-plt.tight_layout()
 
-plt.savefig("charts/average_ride_length.png", dpi=300)
+ax.grid(axis="y", alpha=0.25, linestyle="--")
+ax.set_axisbelow(True)
+
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+
+for container in ax.containers:
+    ax.bar_label(
+        container,
+        fmt="%.1f min",
+        padding=5,
+        fontweight="bold"
+    )
+
+plt.tight_layout()
+plt.savefig("charts/average_ride_length.png", dpi=300, bbox_inches="tight")
 plt.close()
 
-ride_share.plot(
+
+# -----------------------------
+# CHART 4: RIDE SHARE
+# -----------------------------
+
+ax = ride_share.plot(
     kind="pie",
     autopct="%1.1f%%",
-    figsize=(6, 6),
+    figsize=(7, 7),
+    startangle=90,
     ylabel=""
 )
 
-plt.title("Cyclistic Ride Share by Rider Type")
-plt.tight_layout()
-
-plt.savefig("charts/ride_share.png", dpi=300)
-
-plt.close()
-
-avg_ride_by_day_minutes = avg_ride_by_day.apply(
-    lambda column: column.dt.total_seconds() / 60
+plt.title(
+    "Members Account for Nearly Two-Thirds of All Rides",
+    fontsize=15,
+    fontweight="bold",
+    pad=18
 )
 
-avg_ride_by_day_minutes = avg_ride_by_day_minutes[day_order]
-
-avg_ride_by_day_minutes.T.plot(
-    kind="bar",
-    figsize=(10, 6)
-)
-
-plt.title("Average Ride Length by Day of Week")
-plt.xlabel("Day of Week")
-plt.ylabel("Average Ride Length (Minutes)")
-plt.xticks(rotation=45)
 plt.tight_layout()
 
-plt.savefig("charts/average_ride_length_by_day.png", dpi=300)
+plt.savefig(
+    "charts/ride_share.png",
+    dpi=300,
+    bbox_inches="tight"
+)
+
 plt.close()
